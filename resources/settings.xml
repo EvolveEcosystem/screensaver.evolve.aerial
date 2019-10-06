@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+	<category label="General">
+		<setting id="time_of_day" label="Time of Day" type="select" values="Random|Auto|Day|Night" default="Random"/>
+		<!-- <setting id="local_mode" label="Use Local Videos Only" type="bool" defualt="false"/> -->
+		<setting label="Videos can be up to 850 MB. You can change your selection at any time" type="lsep"/>
+		<setting id="mode" label="Video Mode" type="select" values="Stream|Local" default="Stream" enable="True"/>
+		<setting id="playback_quality" label="Streaming Playback Quality" type="select" values="HD|4K" default="HD" enable="eq(-1,Stream)"/>
+		<setting id="download_time" label="Download New Video" type="select" values="Daily|Weekly|Monthly" default="Daily" enable="!eq(-2,Stream)"/>
+		<setting id="download_folder" label="Select Download Location" type="folder" source="auto" option="writeable" enable="!eq(-3,Stream)"/>
+		<setting id="download_quality" label="Local Playback and Download Quality" type="select" values="HD|4K|Both" default="HD" enable="!eq(-4,Stream)"/>
+		<setting label="This will affect local playback quality." type="lsep"/>
+		<setting id="dummy" label="" type="select" values="HD|UHD" visible="false"/>
+	</category>
+	<category label="Enable Locations">
+		<!-- <setting label="Include your personal videos." type="lsep"/> -->
+		<!-- <setting id="custom_select" label="My Videos" type="bool" default="false"  enable="True"/> -->
+		<setting label="Select which locations you would like to see." type="lsep"/>
+		<setting id="china_select" label="China" type="bool" default="true"/>
+		<setting id="dubai_select" label="Dubai" type="bool" default="true"/>
+		<setting id="greenland_select" label="Greenland" type="bool" default="true"/>
+		<setting id="hawaii_select" label="Hawaii" type="bool" default="true"/>
+		<setting id="hong_kong_select" label="Hong Kong" type="bool" default="true"/>
+		<setting id="iss_select" label="International Space Station | NASA" type="bool" default="true"/>
+		<setting id="liwa_select" label="Liwa" type="bool" default="true"/>
+		<setting id="london_select" label="London" type="bool" default="true"/>
+		<setting id="la_select" label="Los Angeles" type="bool" default="true"/>
+		<setting id="ny_select" label="New York" type="bool" default="true"/>
+		<setting id="san_fran_select" label="San Francisco" type="bool" default="true"/>
+		<setting id="sea_select" label="Under the Sea" type="bool" default="true"/>
+	</category>
+	<category label="Manual Download">
+		<setting label="Recommend only one location to be selected before starting to download." type="lsep"/>
+		<setting label="Manually Download Videos for Enabled Locations" type="action" action="RunScript(screensaver.evolve.aerial, download)"  enable="True"/>
+
+	</category>
+</settings>

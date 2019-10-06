@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+    <backgroundcolor>0xff000000</backgroundcolor>
+    <controls>
+        <control type="videowindow" id="50">
+            <description>VideoWindow</description>
+            <posx>0</posx>
+            <posy>0</posy>
+            <width>1920</width>
+            <height>1080</height>
+            <visible>true</visible>
+        </control>
+
+    </controls>
+</window>
