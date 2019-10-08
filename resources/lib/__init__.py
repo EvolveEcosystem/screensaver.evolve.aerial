@@ -73,8 +73,7 @@ class VideoWindow(xbmcgui.WindowXML):
                         if monitor.waitForAbort(.5):
                             sys.exit()
                     xbmc.sleep(5)
-            else:
-                sys.exit()
+            return
         else:
             self.launch()
         try:
