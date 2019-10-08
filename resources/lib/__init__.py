@@ -10,6 +10,25 @@ local = local_videos.Downloader(mode=0)
 class Start:
     def __init__(self):
         c.beta("START_CLASS_DEBUG: Starting")
+        if player.isPlayingAudio():
+            if c.audio_mode() == 1:
+                player.stop()
+                xbmc.sleep(1)
+                self.launch()
+            elif c.audio_mode() == 2:
+                return
+            else:
+                while not monitor.abortRequested():
+                    c.beta("Monitoring")
+                    if not player.isPlayingAudio():
+                        c.beta("Audio Stopped")
+                        self.launch()
+                        return
+                if monitor.waitForAbort(15):
+                    return
+        else:
+            self.launch()
+    def launch(self):
         self.background = VideoWindow('evolve_screensaver.xml', c.path, 'default', '1080i')
         self.background.doModal()
 
@@ -34,23 +53,7 @@ class VideoWindow(xbmcgui.WindowXML):
         self.player.showSubtitles(False)
     def onInit(self):
         self.npv = False
-        if player.isPlayingAudio():
-            if c.audio_mode() == 1:
-                player.stop()
-                xbmc.sleep(1)
-                self.launch()
-            elif c.audio_mode() == 2:
-                sys.exit()
-            else:
-                while not monitor.abortRequested():
-                    c.beta("Monitoring")
-                    if not player.isPlayingAudio():
-                        c.beta("Audio Stopped")
-                        self.launch()
-                        sys.exit()
-                if monitor.waitForAbort(15):
-                    sys.exit()
-        elif player.isPlayingVideo():
+        if player.isPlayingVideo():
             if c.video_mode() == 2:
                 if bool(xbmc.getCondVisibility("Player.Paused")):
                     self.npT = player.getVideoInfoTag().getTitle()
@@ -71,7 +74,7 @@ class VideoWindow(xbmcgui.WindowXML):
                             waiting = False
                             self.close()
                         if monitor.waitForAbort(.5):
-                            sys.exit()
+                            return
                     xbmc.sleep(5)
             return
         else:
@@ -88,7 +91,7 @@ class VideoWindow(xbmcgui.WindowXML):
         list_len = len(self.videolist)
         if len(self.videolist) == 0:
             c.ok("Your \"Time of Day\" selection is {}. The locations you have downloaded do not have any {} Time videos. Please download more locations or change your \"Time of Day\" settings.".format(c.time_of_day.title(), gV().get_current_time().title()))
-            sys.exit()
+            return
         random.shuffle(self.videolist)
         for video in self.videolist:
             listitem = xbmcgui.ListItem("%s" % video.get("id"))
