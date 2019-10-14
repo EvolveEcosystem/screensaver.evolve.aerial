@@ -8,6 +8,8 @@ cwd = os.path.dirname(__file__)
 dialog = xbmcgui.Dialog()
 time_of_day = addon.getSetting("time_of_day").lower()
 mode = addon.getSetting("mode")
+audio = addon.getSetting("audio")
+video = addon.getSetting("video")
 playback_quality = addon.getSetting("playback_quality")
 download_time = addon.getSetting("download_time")
 download_quality = addon.getSetting("download_quality")
@@ -32,6 +34,18 @@ aerial_data = json.load(open(os.path.join(cwd,"aerial.json")))
 string_data = json.load(open(os.path.join(cwd, "aerial_strings.json")))
 excludes = ".(jpg|png|idx|srt|sfnfo|nfo|sub|db|txt|gif|xml)"
 
+def audio_mode():
+    if audio == "Stop audio":
+        return 1
+    elif audio == "Keep playing audio":
+        return 2
+    else:
+        return 3
+def video_mode():
+    if video == "Keep playing video":
+        return 1
+    else:
+        return 2
 #def logs to kodi log
 def log(msg):
     xbmc.log("{}".format(msg))
