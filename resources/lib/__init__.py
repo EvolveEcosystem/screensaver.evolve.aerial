@@ -32,6 +32,7 @@ class Start:
     def launch(self):
         self.background = VideoWindow('evolve_screensaver.xml', c.path, 'default', '1080i')
         self.background.doModal()
+        del self.background
 
 class Player(xbmc.Player):
     def __init__(self):
@@ -63,20 +64,19 @@ class VideoWindow(xbmcgui.WindowXML):
                     self.npv = True
                     self.np()
                     self.launch()
-                    if not self.overlay.psmkillall:
-                        self.buildcpi()
-                        player.play(self.playlist, listitem=self.lpi)
-                        xbmc.sleep(1)
-                        player.pause()
-                        waiting = True
-                        while waiting:
-                            if player.isPlayingVideo():
-                                player.seekTime(float(int(self.npt)-10))
-                                waiting = False
-                                self.close()
-                            if monitor.waitForAbort(.5):
-                                return
-                        xbmc.sleep(5)
+                    self.buildcpi()
+                    player.play(self.playlist, listitem=self.lpi)
+                    xbmc.sleep(1)
+                    player.pause()
+                    waiting = True
+                    while waiting:
+                        if player.isPlayingVideo():
+                            player.seekTime(float(int(self.npt)-10))
+                            waiting = False
+                            self.close()
+                        if monitor.waitForAbort(.5):
+                            return
+                    xbmc.sleep(5)
             return
         else:
             self.launch()
@@ -247,14 +247,18 @@ class OverlayWindow(xbmcgui.WindowXMLDialog):
         self.timeOfDay = None
         self.location = None
         self.t = 0
+        self.psmmode = ""
         self.file = None
         self.changing = False
         self.displaying = False
         t(target=self.psm).start()
+
     def onInit(self):
         self.psmkillall = False
         self.label = self.getControl(51)
+        self.label2 = self.getControl(52)
         self.label.setLabel(" ")
+        self.label2.setLabel(" ")
         while self.running:
             if int(playlist.size()) == (int(playlist.getposition())+1):
                 try:
@@ -278,28 +282,37 @@ class OverlayWindow(xbmcgui.WindowXMLDialog):
                     self.data_allocation()
             if self.countdown:
                 self.running = False
-                self.player.pause()
+                self.player.stop()
+                c.beta("Video PAused")
                 try:
+                    c.beta("trying dpms")
                     xbmc.executebuiltin('ToggleDPMS')
-                    self.monitorpsm()
+                    self.psmmode = "DPMS"
+                    self.psmkillall = True
+                    player.stop()
+                    self.label.setLabel("")
+                    self.label2.setLabel("Power saving mode was enabled press back to return.")
                 except Exception as err:
                     c.beta("DPMS TOGGLE FAILED")
-                    c.beta(err)
+                    c.beta("{}".format(err))
                     try:
                         xbmc.executebuiltin('CECStandby')
                         c.beta("CEC WORKED")
-                        self.monitorpsm()
+                        self.psmmode = "CEC"
+                        self.psmkillall = True
+                        player.stop()
+                        self.label.setLabel("")
+                        self.label2.setLabel("Power saving mode was enabled press back to return.")
                     except Exception as err:
                         c.beta("CECSTandby Failed")
                         c.beta("Will continue SCREENSAVER")
-                        c.beta(err)
-                        self.player.play()
-                        self.countdown = False
+                        c.beta("{}".format(err))
+                        self.psmkillall = False
+                if not self.psmkillall:
+                    self.player.play(playlist, windowed=True)
+                    self.countdown = False
             xbmc.sleep(1000)
-    def monitorpsm(self):
-        self.psmkillall = True
-        self.player.stop()
-        self.close()
+
     def data_allocation(self):
         if self.n_file != self.file:
             try:
@@ -357,6 +370,13 @@ class OverlayWindow(xbmcgui.WindowXMLDialog):
     def onAction(self, action):
         if action == 10 or action == 92:
             self.running = False
+            if "CEC" in self.psmmode :
+                xbmc.executebuiltin("CECActivateSource")
+                c.beta("CECActivateSource")
+            elif "DPMS" in self.psmmode:
+                xbmc.executebuiltin('ToggleDPMS')
+                c.beta("TOGGLE DPMS")
+            xbmc.sleep(1000)
             self.player.stop()
             self.close()
 
@@ -381,6 +401,8 @@ class OverlayWindow(xbmcgui.WindowXMLDialog):
             else:
                 self.changing = True
                 self.player.playnext()
+
+
 
 if __name__ == '__main__':
     c.cleanup()

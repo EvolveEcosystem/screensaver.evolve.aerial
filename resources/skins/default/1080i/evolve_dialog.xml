@@ -12,5 +12,15 @@
           <wrapmultiline>true</wrapmultiline>
           <animation effect="fade" time="1000">VisibleChange</animation>
         </control>
+
+        <control type="label" id="52">
+          <posx>90</posx>
+          <posy>900</posy>
+          <width>960</width>
+          <height>200</height>
+          <font>font45</font>
+          <label> </label>
+          <wrapmultiline>true</wrapmultiline>
+        </control>
     </controls>
 </window>
