@@ -7,6 +7,7 @@ player = xbmc.Player()
 playlist = xbmc.PlayList(1)
 local = local_videos.Downloader(mode=0)
 
+
 class Start:
     def __init__(self):
         c.beta("START_CLASS_DEBUG: Starting")
@@ -60,22 +61,22 @@ class VideoWindow(xbmcgui.WindowXML):
                     self.npt = player.getTime()
                     self.nptT = player.getTotalTime()
                     self.npv = True
-                    # response = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Player.GetItem", "params": { "properties": ["title", "album", "artist", "season", "episode", "duration", "plot", "showtitle", "tvshowid", "thumbnail", "file", "fanart", "streamdetails", "runtime"], "playerid": 1 }, "id": "VideoGetItem"}')
                     self.np()
                     self.launch()
-                    self.buildcpi()
-                    player.play(self.playlist, listitem=self.lpi)
-                    xbmc.sleep(1)
-                    player.pause()
-                    waiting = True
-                    while waiting:
-                        if player.isPlayingVideo():
-                            player.seekTime(float(int(self.npt)-10))
-                            waiting = False
-                            self.close()
-                        if monitor.waitForAbort(.5):
-                            return
-                    xbmc.sleep(5)
+                    if not self.overlay.psmkillall:
+                        self.buildcpi()
+                        player.play(self.playlist, listitem=self.lpi)
+                        xbmc.sleep(1)
+                        player.pause()
+                        waiting = True
+                        while waiting:
+                            if player.isPlayingVideo():
+                                player.seekTime(float(int(self.npt)-10))
+                                waiting = False
+                                self.close()
+                            if monitor.waitForAbort(.5):
+                                return
+                        xbmc.sleep(5)
             return
         else:
             self.launch()
@@ -83,6 +84,8 @@ class VideoWindow(xbmcgui.WindowXML):
             del self.overlay
         except:
             pass
+
+
     def launch(self):
         self.playlist = xbmc.PlayList(1)
         self.playlist.clear()
@@ -247,10 +250,11 @@ class OverlayWindow(xbmcgui.WindowXMLDialog):
         self.file = None
         self.changing = False
         self.displaying = False
+        t(target=self.psm).start()
     def onInit(self):
+        self.psmkillall = False
         self.label = self.getControl(51)
-        self.label.setLabel("")
-        self.label.setVisible(False)
+        self.label.setLabel(" ")
         while self.running:
             if int(playlist.size()) == (int(playlist.getposition())+1):
                 try:
@@ -272,8 +276,30 @@ class OverlayWindow(xbmcgui.WindowXMLDialog):
                     self.T = int(self.player.getTotalTime())
                     self.Et = self.T-10
                     self.data_allocation()
-
+            if self.countdown:
+                self.running = False
+                self.player.pause()
+                try:
+                    xbmc.executebuiltin('ToggleDPMS')
+                    self.monitorpsm()
+                except Exception as err:
+                    c.beta("DPMS TOGGLE FAILED")
+                    c.beta(err)
+                    try:
+                        xbmc.executebuiltin('CECStandby')
+                        c.beta("CEC WORKED")
+                        self.monitorpsm()
+                    except Exception as err:
+                        c.beta("CECSTandby Failed")
+                        c.beta("Will continue SCREENSAVER")
+                        c.beta(err)
+                        self.player.play()
+                        self.countdown = False
             xbmc.sleep(1000)
+    def monitorpsm(self):
+        self.psmkillall = True
+        self.player.stop()
+        self.close()
     def data_allocation(self):
         if self.n_file != self.file:
             try:
@@ -306,6 +332,15 @@ class OverlayWindow(xbmcgui.WindowXMLDialog):
             except:
                 pass
         return
+    def  psm(self):
+        self.countdown = False
+        if int(c.psm) > 0:
+            countdown = int(c.psm)
+            while countdown > 0:
+                xbmc.sleep(1000)
+                countdown-=1
+                self.countdown = False
+            self.countdown = True
     def counter(self):
         if not self.displaying:
             self.displaying = True

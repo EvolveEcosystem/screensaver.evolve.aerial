@@ -1,4 +1,4 @@
-import common as c, json, local_videos, os, re, urllib3, sys, time, xbmcgui, xbmcvfs
+import common as c, json, local_videos, os, re, urllib, urllib3, sys, time, xbmcgui, xbmcvfs
 cwd = os.path.dirname(__file__)
 
 def beta(msg):

@@ -33,7 +33,7 @@ last_updated = xbmc.translatePath(update)
 aerial_data = json.load(open(os.path.join(cwd,"aerial.json")))
 string_data = json.load(open(os.path.join(cwd, "aerial_strings.json")))
 excludes = ".(jpg|png|idx|srt|sfnfo|nfo|sub|db|txt|gif|xml)"
-
+psm = json.loads(xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Settings.GetSettingValue","params":{"setting":"powermanagement.displaysoff"},"id":2}'))['result']['value'] * 60
 def audio_mode():
     if audio == "Stop audio":
         return 1
